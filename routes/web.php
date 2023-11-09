@@ -1,9 +1,14 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Profile\AvatarController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
 use App\Models\User;
+use OpenAI\Laravel\Facades\OpenAI;
+use OpenAI\Responses\Completions\CreateResponse;
+use Laravel\Socialite\Facades\Socialite;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -16,7 +21,7 @@ use App\Models\User;
 */
 
 Route::get('/', function () {
-      return view('welcome');
+    return view('welcome');
 
     //$users = DB::select("select * from users where IDUser = ?", ['1']);
     //$users = DB::select("select * from users");
@@ -65,9 +70,9 @@ Route::get('/', function () {
     $user = $user->delete();
 */
 
-   // $users = User::find(6);
+    // $users = User::find(6);
 
-   // dd($users->username);
+    // dd($users->username);
 });
 
 Route::get('/dashboard', function () {
@@ -77,7 +82,20 @@ Route::get('/dashboard', function () {
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::patch('/profile/avatar', [AvatarController::class, 'update'])->name('profile.avatar');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
 require __DIR__ . '/auth.php';
+
+
+ 
+Route::get('/auth/redirect', function () {
+    return Socialite::driver('github')->redirect();
+});
+ 
+Route::get('/auth/callback', function () {
+    $user = Socialite::driver('github')->user();
+ dd($user);
+    // $user->token
+});
